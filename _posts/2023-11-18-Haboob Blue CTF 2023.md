@@ -1,5 +1,5 @@
 ---
-title: Haboob CTF
+title: Haboob Blue CTF 2023
 date: 2023-11-18 12:13:00 +0300
 categories: [Writeup, CTF]
 tags: [writeup]     # TAG names should always be lowercase
