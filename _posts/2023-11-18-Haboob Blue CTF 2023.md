@@ -23,10 +23,12 @@ In the path `\Users\<username>\AppData\Local\Microsoft\Windows\Notifications`, y
 Within this SQLite database, there is a Notification table containing all the notifications in XML format. These notifications may contain interesting data.
 
 
-![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/962c0b58-96a3-4af5-9311-efa8d6b33688)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/5c598357-90e8-424e-8f4c-4a1915b23845)
 
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/5b1d13fb-36d6-4a63-800b-91489f36cf8a)
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/0e0eca81-33a4-4f4c-a414-bdda30bf3c99)
+
 
 
 Reference: [Windows Forensics - HackTricks](https://book.hacktricks.xyz/generic-methodologies-and-resources/basic-forensic-methodology/windows-forensics)
