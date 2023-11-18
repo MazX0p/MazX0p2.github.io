@@ -5,7 +5,7 @@ categories: [Writeup, CTF]
 tags: [writeup]     # TAG names should always be lowercase
 ---
 
-# HABBOB BLUE CTF
+# HABOOB BLUE CTF
 
 ## Difficulty:
 
