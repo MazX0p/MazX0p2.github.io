@@ -126,8 +126,8 @@ It contains the following directory structure:
 - desktop.ini
 - firstOneFromBrain.txt
 
-> By looking into appsearch.exe globalitems we can found there was search for 'veracrypt' that help us to know the type of encryption was used.
-> Encrypted volumes will always get the high entropy score.
+> Encrypted volumes will always get the high entropy score. I used autopsy key search to search for Truecrypt and Veracrypt couldn’t found Truecrypt and only found Veracrypt By looking into appsearch.exe globalitems we can found there was search for ‘veracrypt’ that help us to know the type of encryption was used
+
 
 ### Bruteforce
 
