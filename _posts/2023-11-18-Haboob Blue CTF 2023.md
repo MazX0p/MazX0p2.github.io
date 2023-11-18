@@ -23,7 +23,8 @@ In the path `\Users\<username>\AppData\Local\Microsoft\Windows\Notifications`, y
 Within this SQLite database, there is a Notification table containing all the notifications in XML format. These notifications may contain interesting data.
 
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/4eeb107d-7a97-48d4-9d74-218c712a5361)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/962c0b58-96a3-4af5-9311-efa8d6b33688)
+
 
 ![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/5b1d13fb-36d6-4a63-800b-91489f36cf8a)
 
