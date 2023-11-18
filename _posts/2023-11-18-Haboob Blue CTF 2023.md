@@ -301,8 +301,13 @@ Tool - Autopsy
 
 During the investigation, a suspicious JavaScript file was found in recently accessed files. 
 
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/62ddf509-666d-4fa8-95e5-a0215b1f7adc)
+
 * Data Sources >> PinkyPC.e01_1Host
 * File Path: /img_PinkyPC.e01/Users/Pinky/AppData/Local/Google/Chrome/User Data/Default/Extensions/x9mhkkegcca9sldgd9medpiccmgmlc
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/4a40a431-d14c-4b3a-987f-6248615ff8de)
+
 
 Directory Structure:
 ------
@@ -422,27 +427,41 @@ print (h,end="")
 ```
 ### Flag Decoding Process
 
-After running the script, the output was `SGFib29ie2VYN2VuJGkwbl9yM3YzcjUzcn0`.
 
-1. Base64 Decoding: The output was decoded using Base64, revealing `Haboob{eX7en..l..}`.
+#### Undefined Variable
 
-2. Undefined Variable: It was noticed that `d17` was not defined.
+It was noticed that `d17` was not defined.
 
-3. Decimal Value Discovery: A Python script was written to find the decimal value of `d17`. The script provided the initial digits of the flag.
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/337cd60a-b7a7-4fa6-92dc-3fd8ef89fa10)
 
-4. Defining `d17`: To obtain the full flag, it was necessary to define `d17` with the correct value.
+So we defined 'd17' as 1 to test, after running the script, the output was `SGFib29ie2VYN2VuJGkwbl9yM3YzcjUzcn0`.
 
-5. Bruteforce Approach: A bruteforce approach on `d17` revealed that the correct value was 37.
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/04f90834-f0db-4597-9018-c2a5d7961361)
 
-6. Base64 Decoding (Again): With the correct value for `d17`, the output was base64-decoded again, resulting in `Haboob{eX7en$i0n_r3v3r53r}`.
 
-7. ASCII Table Conversion: Utilizing the ASCII table, it was confirmed that every number corresponds to a character value, aiding in finding the complete flag.
+##### Base64 Decoding
 
-Special thanks to Baha Uni for providing valuable courses on converters, facilitating the decoding process.
+The output was decoded using Base64, revealing `Haboob{eX7en..l..}`.
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/e6f5c352-e37e-4ded-8193-edf7c69d651f)
+
+
+#### Decimal Value Discovery
+
+ASCII Table Conversion: Utilizing the ASCII table, it was confirmed that every number corresponds to a character value, aiding in finding the complete flag
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/94544c9b-32a6-4963-8414-5a0b9ee6a2b4)
+
+A Python script was written to find the decimal value of `d17`. The script provided the initial digits of the flag.
+To obtain the full flag, it was necessary to define `d17` with the correct value.
+A bruteforce approach on `d17` revealed that the correct value was 37.
+With the correct value for `d17`, the output was base64-decoded again, resulting in `Haboob{eX7en$i0n_r3v3r53r}`.
+
+and i got the flag :D
 
 Final Flag:
 
 Haboob{eX7en$i0n_r3v3r53r}
-and i got the flag :D
+
 
 
