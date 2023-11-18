@@ -61,7 +61,8 @@ Our discovery is based on the presence of this connection in both the browser hi
 
 `C:\Users<USER>\AppData\Local\Microsoft\Terminal Server Client\Cache\`
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/073e1a5b-477e-47f1-9ae7-ec22619d666e)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/815e8fdc-86ec-45fd-8bbf-aa8557fb44d5)
+
 
 
 ### Analyze RDP
@@ -69,7 +70,8 @@ Our discovery is based on the presence of this connection in both the browser hi
 To extract images from the RDP Bitmap Cache, we can utilize the `bmc-tool.py`. This tool proves useful in extracting valuable information.
 
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/1d5cb6da-6723-4ac6-bf24-06edbbcdd4e9)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/64a1c3a9-3ddd-49c2-aeb0-a05550c00c69)
+
 
 
 Reference: [Blind Forensics with the RDP Bitmap Cache](https://medium.com/@ronald.craft/blind-forensics-with-the-rdp-bitmap-cache-16e0c202f91c)
@@ -83,18 +85,21 @@ We utilized RDPieces to rebuild the images.
 Unfortunately, the libraries used were subpar.
 
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/4aef78b4-0b0a-47c5-9d44-5e2563a5cfa8)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/5162cc00-ea52-40f0-933f-20ea2ec7e4a5)
 
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/86cd9190-b154-4ce6-96ca-31c3b4fdf065)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/fef1a89a-7c96-42a7-9448-6b5fbe0313f0)
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/7a8ee40c-ba3e-4d4d-bd0c-f0dadd775bb1)
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/21400b19-d7f5-4cc8-a0a3-23a74bfe735f)
+
 
 
 No looking back, let's do it manually.
 
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/31c4280e-d043-46c9-86f9-30edd3a765ae)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/70645c97-5058-4b7b-9592-7fdc3e41d061)
+
 
 
 1st Flag: `Haboob{y0u_r_m4a5ter_in_b1tm4p5}`
@@ -104,12 +109,13 @@ No looking back, let's do it manually.
 
 ## Investigation
 
-During our investigation, we discovered a container file that appears suspicious and is encrypted. The file is located in the path `/img_PinkyPC.e01/Users/Desktop`.
+During our investigation, we discovered a container file that appears suspicious and is encrypted as autopsy module show us. The file is located in the path `/img_PinkyPC.e01/Users/Desktop`.
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/2eb8be59-ec86-4165-8588-2b19ce2b145d)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/dc9f0a6b-a2ea-4f64-880c-131384624fc1)
 
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/7efd7140-13ac-4af1-b3c7-dbe3d77c3894)
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/bc873460-b551-445d-98cc-cb5b6f17fd18)
 
 
 It contains the following directory structure:
@@ -120,18 +126,23 @@ It contains the following directory structure:
 - desktop.ini
 - firstOneFromBrain.txt
 
+* By looking into appsearch.exe globalitems we can found there was search for 'veracrypt' that help us to know the type of encryption was used.
+
+
 ### Bruteforce
 
 We generated a custom wordlist using the `Cupp tool`, incorporating information obtained from the first message. Subsequently, we utilized ``hashcat`` to crack the generated wordlist.
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/4bb9148f-cccc-41c6-a6cf-e1f3fa3ce4c9)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/a338f558-4b58-4580-a20e-e32fa92f7c19)
 
 
 - Cupp tool information was obtained from [HackGPT](https://hackgpt.com).
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/5996eb60-7d05-4d10-bfd1-139831d9d6d9)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/afc6b819-2441-4057-a6f9-30a73776249c)
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/268e72c8-cc09-451d-a0cd-651eddba170f)
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/06144268-0260-470a-a526-1a4b5ed21b05)
+
 
 
 **Command for hashcat: hashcat -w 4 -m 13721 Container pinky.txt**
@@ -143,7 +154,9 @@ Password Cracked: `yknip_954`
 
 * Mount the image using VeraCrypt
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/f71e45be-2a9e-488e-93db-003cfa60575d)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/30f2792b-23ed-46dd-a87f-17dc24fbdcdb)
+
+
 
 
 # Zip File Exploration
@@ -152,16 +165,19 @@ Password Cracked: `yknip_954`
 
 After mounting the disk, an encrypted zip file was found.
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/10971949-a8d8-4dee-bc46-f60fb5e831ae)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/ec3b5091-6dbd-439e-ad16-2842864f3248)
+
 
 
 ## SAM Dump Attempt 
 
-Attempts to dump the Security Account Manager (SAM) for the password.
+Attempts to dump the Security Account Manager (SAM) for the password, ans tried to used in the zip folder but no look.
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/54a2d657-0df1-48bd-a0de-94c910bf2bff)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/aba4bdb2-f13e-4ce7-9252-f9faa3b78f5b)
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/e0ed98d2-777e-4a70-934a-9d153834a3c4)
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/5a5adf01-1c33-4474-b945-ce41dce05d77)
+
 
 
 ### Red Teaming Mindset
