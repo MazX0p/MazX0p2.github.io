@@ -171,7 +171,7 @@ After mounting the disk, an encrypted zip file was found.
 
 ## SAM Dump Attempt 
 
-Attempts to dump the Security Account Manager (SAM) for the password, ans tried to used in the zip folder but no look.
+Attempts to dump the Security Account Manager (SAM) for the password, tried to used cracked passowrd to unzip the zip folder but no lock.
 
 ![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/aba4bdb2-f13e-4ce7-9252-f9faa3b78f5b)
 
@@ -189,7 +189,8 @@ Despite unsuccessful attempts to unzip the file, a red teaming mindset was emplo
 Two login attempts in Chrome were identified, leading to the use of Mimikatz 
 
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/ed336708-a463-4911-bbe2-7e9bc72864db)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/07ecaa31-02ff-41cc-be2f-7035b2e8f963)
+
 
 
     - Reference: [Reading DPAPI Encrypted Secrets with Mimikatz and C++](https://www.ired.team/offensive-security/credential-access-and-credential-dumping/reading-dpapi-encrypted-secrets-with-mimikatz-and-c++)
@@ -198,25 +199,29 @@ Two login attempts in Chrome were identified, leading to the use of Mimikatz
 
 To proceed, the master key was needed. The Security Identifier (SID) was downloaded from `appdata\Roaming\Microsoft\Protect` using the cracked user password.
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/81f65817-c3e4-44f6-b3d2-40dbe8cde4fc)
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/ceefbdbf-7ed6-4446-be8a-851edac930ad)
 
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/607464f2-e016-43c1-8d3b-018b243b62e0)
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/791e98c5-f8ef-48c6-9537-d2629c424cdd)
 
 
 ##### Dump Attempt
 
 Attempts to dump passwords of two users using the obtained master key were unsuccessful.
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/1cda6e99-e2ae-4f43-95c4-889bb2ce5ce0)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/c70bc896-f700-4881-b10c-2be1ccb30d81)
+
 
 ##### SQLite Exploration
 
 Considering alternative approaches (https://ctftime.org/writeup/33938), SQLite was explored based on research and a similar scenario.
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/adfb066d-bfef-417f-b808-67030f7f194e)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/e56a9023-c367-4c06-b7c3-3d8260f963de)
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/385fea8f-6511-4976-a89e-ad27941be662)
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/39bc4211-f293-465f-8771-44a573c17790)
+
 
 
 ##### SQLite and DPAPI
@@ -224,17 +229,21 @@ Considering alternative approaches (https://ctftime.org/writeup/33938), SQLite w
 Exploration of SQLite revealed the calling of DPAPI, providing promising insights.
 (https://nandynarwhals.org/sieberrsec-ctf-3.0-digginginthedump/)
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/6066b63d-50b7-465f-95f7-01599b1c3d5e)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/1ebd41b1-81e0-4fc4-861c-7f91ed4d5d0d)
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/5f666b4c-e819-4e4e-96bf-3f81089001c6)
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/7d889db5-2b19-4fc2-b8a7-43c61dd300ad)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/251a2051-962d-418f-ba15-e324c5eb1464)
+
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/0c7466b2-9916-4cec-a2f6-fa80859f2595)
+
 
 ##### Blob Extraction
 
 Advancing to the next level, the blob from Mimikatz was utilized.
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/578fc4c7-a878-4e9a-ba3f-04669d28151f)
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/18defb16-6781-44a3-b721-62b2b0021dd5)
+
 
 
 ##### Python Script Modification
@@ -245,7 +254,8 @@ Extensive debugging led to the realization that the provided Python script neede
 ##### Password Decoding
 After fixing the Python script, the password was successfully decoded:
 
-![image](https://github.com/MazX0p/MazX0p.github.io/assets/54814433/827380c1-47fc-4369-bf42-923cb84f8293)
+
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/34283300-fc8e-4b57-a9a8-7412e468035b)
 
 
     `
