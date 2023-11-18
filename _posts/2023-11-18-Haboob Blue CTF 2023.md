@@ -48,7 +48,7 @@ By the way, I noticed that you have connected to my PC and encrypted one of the 
 
 Narf, Yours in world domination...
 
-`Note: The entire notification serves as a hint, indicating a connection to the RDP.`
+`Note: The entire notification serves as a hint, indicating a connection to the RDP And for the encrypted file. `
 
 
 # RDP
