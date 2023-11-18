@@ -55,7 +55,7 @@ Narf, Yours in world domination...
 
 In our investigation, we discovered that Pinky is connected to the Windows box. To analyze this remote connection, we need to examine Remote Desktop Protocol (RDP) and other tools such as AnyDesk.
 
-## Investigation Details
+## Flag1 Investigation
 
 Our discovery is based on the presence of this connection in both the browser history and TeamViewer logs. Additionally, it is recommended to analyze the RDP "bitmap cache" located in the following path :
 
@@ -107,7 +107,7 @@ No looking back, let's do it manually.
 
 # Suspected Container
 
-## Investigation
+## Flag2 Investigation
 
 During our investigation, we discovered a container file that appears suspicious and is encrypted as autopsy module show us. The file is located in the path `/img_PinkyPC.e01/Users/Desktop`.
 
@@ -292,10 +292,10 @@ open("blob", 'wb').write(x[5:])
 Haboob{Bru73_F0rc3d_7h3_c0N741n3R}
 
 
-# js
+# JS
 
 
-## Investigation
+## Flag3 Investigation
 
 Tool - Autopsy
 
