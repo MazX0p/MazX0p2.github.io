@@ -318,8 +318,10 @@ Directory Structure:
 * manifest.json
 * popup.html
 
+![image](https://github.com/MazX0p/MazX0p2.github.io/assets/54814433/c1adba16-64cb-461a-98e2-8f070cd6351d)
 
-> The code was obfuscated, so it was deobfuscated to reveal the following:
+
+The code was obfuscated, so it was deobfuscated to reveal the following:
 
 
 ```javascript
