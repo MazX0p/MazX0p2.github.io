@@ -126,8 +126,8 @@ It contains the following directory structure:
 - desktop.ini
 - firstOneFromBrain.txt
 
-* By looking into appsearch.exe globalitems we can found there was search for 'veracrypt' that help us to know the type of encryption was used.
-
+> By looking into appsearch.exe globalitems we can found there was search for 'veracrypt' that help us to know the type of encryption was used.
+> Encrypted volumes will always get the high entropy score.
 
 ### Bruteforce
 
