@@ -195,7 +195,8 @@ stage {
 ```
 The streep is change the values in the memory. 
 
-Old value : `%s as %s\\%s: %d` > New Value: `%s - %s\\%s: %d`
+Old value : `%s as %s\\%s: %d` > New Value: `%s - %s\\%s: %d` 
+
 Old value : `%02d/%02d/%02d %02d:%02d:%02d` > New Value: `%02d-%02d-%02d %02d:%02d:%02d` 
 
 
