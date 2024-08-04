@@ -66,10 +66,14 @@ and search for the strings within the dump using tools like volatility:
 
 ![image](https://github.com/user-attachments/assets/167c29b7-5d00-4a91-b049-6ef5da8740e6)
 
-we found the bad paces that have been flagged, although this method is simple and effective, from a practical point of view, we should not do this all the time, because we cannot determine the rules used by other security controls.
+we found the bad paces that have been flagged, although this method is simple and effective, from a practical point of view, we should not do this all the time, because we cannot determine the rules used by other security controls. 
+
 If you modify the judgment rules to 3 and you only modify one of them, it will definitely not work. 
-In addition, some format strings should not be modified directly, otherwise it may bring unexpected results to the program.
-For example, same as our case format strings are also detected in Windows_Trojan_CobaltStrike_3dc22d14 that we showen up.
+
+In addition, some format strings should not be modified directly, otherwise it may bring unexpected results to the program. 
+
+For example, same as our case format strings are also detected in Windows_Trojan_CobaltStrike_3dc22d14 that we showen up. 
+
 
 ## The solution
 
@@ -87,4 +91,6 @@ The Sleep Mask Kit employs several techniques to evade memory-based detection:
 - Dynamic Decryption: The encrypted sections are only decrypted at runtime when needed. This minimizes the window of opportunity for detection, as the sensitive data is only in its decrypted form for a short period.
 
 - Polymorphism: The kit can generate different variants of the same payload, each with different encrypted strings or obfuscated patterns. This makes it harder for signature-based detection mechanisms to identify the payload.
+
+![image](https://github.com/user-attachments/assets/d82df3db-7b2e-4489-8e8c-5842f5f981f3)
 
