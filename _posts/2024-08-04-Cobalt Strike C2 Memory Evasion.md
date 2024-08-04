@@ -137,6 +137,11 @@ void my_mask_section(SLEEPMASKP *parms, DWORD start, DWORD end) {
 }
 ```
 
+Then we should change the old function name
+
+![image](https://github.com/user-attachments/assets/4d619ee6-95d1-4bf9-8ad6-5c522a700ef4)
+
+
 ### The Results
 
 ![image](https://github.com/user-attachments/assets/f6128e04-b1ab-43cb-8448-0023689dccf1)
