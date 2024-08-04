@@ -14,12 +14,12 @@ Cobalt Strike is a popular tool among red teams for simulating advanced threats 
 
 ## Understanding the Detection Mechanism
 
-![image](https://github.com/user-attachments/assets/e4834e0b-f1a3-4398-be0c-f32aa65d586d)
+![image](https://github.com/user-attachments/assets/a74298ea-c11e-4857-b38c-6f7e088497eb)
 
 
 YARA rules are used to identify and classify malware based on patterns and strings within files and memory. A typical YARA rule for detecting Cobalt Strike might look for specific strings or behaviors indicative of the tool. For instance, the following rule targets specific strings:
 
-```yara
+```javascript
 rule Windows_Trojan_CobaltStrike_3dc22d14 {
     meta:
         author = "Elastic Security"
