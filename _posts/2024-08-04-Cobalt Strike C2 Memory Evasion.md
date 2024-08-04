@@ -44,3 +44,21 @@ rule Windows_Trojan_CobaltStrike_3dc22d14 {
 This rule looks for specific date/time and path formatting strings. To evade detection, we need to modify these strings in our payload.
 
 
+## Identifying and Modifying Strings
+
+The first step is to locate the strings in your payload that match the YARA rule. If using a tool like strings doesn't show any results, the strings might be obfuscated or dynamically generated.
+
+### Static Analysis
+
+Start by reviewing the source code or binary to identify where these strings are created. Look for functions that format strings, such as _snprintf, sprintf, or printf.
+
+![image](https://github.com/user-attachments/assets/b46c13cb-830a-4386-8406-0dd183e00a4f)
+
+### Dynamic Analysis
+
+create a memory dump while the payload is running 
+
+![image](https://github.com/user-attachments/assets/9c698dc1-3873-4611-b077-af0d69c5ace4)
+
+and search for the strings within the dump using tools like volatility:
+
