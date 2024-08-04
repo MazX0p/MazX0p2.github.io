@@ -108,7 +108,7 @@ The default is RWX. so we need to set to it to false in our profile.
 stage {
     set userwx         "false";
     }
-    ```
+```
 
 then we need to set the sleep_mask to true in our profile.
 
