@@ -120,7 +120,7 @@ stage {
     set userwx         "false";
     set sleep_mask     "true";
     }
-    ```
+```
 
 NOTE: you may need to edit the sleep mask src file.
 
