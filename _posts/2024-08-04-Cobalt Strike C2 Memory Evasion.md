@@ -62,3 +62,11 @@ create a memory dump while the payload is running
 
 and search for the strings within the dump using tools like volatility:
 
+![image](https://github.com/user-attachments/assets/cf972f25-7726-4ece-85a7-2a81585c9c5e)
+
+![image](https://github.com/user-attachments/assets/167c29b7-5d00-4a91-b049-6ef5da8740e6)
+
+we found the bad paces that have been flagged, although this method is simple and effective, from a practical point of view, we should not do this all the time, because we cannot determine the rules used by other security companies. If you modify the judgment rules to 3 and you only modify one of them, it will definitely not work. In addition, some format strings should not be modified directly, otherwise it may bring unexpected results to the program. For example, some format strings are also detected in Windows_Trojan_CobaltStrike_3dc22d14.
+So what is the solution ?
+That is the sleepmask kit.
+
