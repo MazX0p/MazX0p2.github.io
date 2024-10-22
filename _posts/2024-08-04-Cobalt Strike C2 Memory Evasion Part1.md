@@ -7,7 +7,6 @@ tags: [Evasion]     # TAG names should always be lowercase
 
 # Cobalt Strike C2 Memory Evasion
 
-
 ## Intro
 
 Cobalt Strike is a popular tool among red teams for simulating advanced threats and conducting penetration testing. However, its widespread use has made it a common target for detection by security solutions. In particular, memory-based detection methods can identify Cobalt Strike's presence during an engagement. This write-up explores techniques to evade memory-based detection, focusing on avoiding detection by YARA rules.
