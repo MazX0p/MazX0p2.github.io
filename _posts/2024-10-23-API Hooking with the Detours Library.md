@@ -5,120 +5,290 @@ categories: [Maldev, Evasion]
 tags: [Evasion]     # TAG names should always be lowercase
 ---
 
-# API Hooking with the Detours Library
+## Introduction
 
-## Overview
-The **Detours Hooking Library**, developed by Microsoft Research, allows developers to intercept and redirect function calls in Windows applications. By redirecting calls to specific functions, developers can insert user-defined behavior to modify or extend the original functionality. Detours is typically used with C/C++ programs and works for both 32-bit and 64-bit applications.
+API hooking is an essential technique in modern malware development, allowing attackers to intercept and manipulate system calls for malicious purposes. One of the most popular libraries for API hooking in Windows is Microsoft's **Detours Library**. Detours enables developers (or attackers) to alter the behavior of system functions by injecting custom code, which is particularly valuable for malware such as keyloggers, process injection techniques, or API monitoring.
 
-## How Does Detours Work?
-The Detours library modifies the initial instructions of a target function (the function to be hooked) by inserting an unconditional jump (often called a *trampoline*) to a custom detour function. This detour allows your custom code to execute instead of the original.
+In this detailed guide, we’ll explore how to leverage Detours for malicious purposes, such as tampering with system calls and evading security software. We’ll also provide a full working example, along with several key strategies used in real-world malware.
 
-The library also uses **transactions** to manage the installation and removal of hooks. Transactions allow multiple hooks to be grouped together, making it easier to apply or revert complex changes.
+## Understanding Detours Hooking
 
-## Setting Up the Detours Library
-To use the Detours library, download and compile the Detours repository to obtain the static library files (`.lib`) and include the `detours.h` header file. Detailed instructions are available in the Detours Wiki under the "Using Detours" section.
+Detours works by modifying the beginning of a target function (often known as the *prologue*) and inserting an unconditional jump (*trampoline*) to the custom handler function. This means that whenever the original function is called, the custom code will execute instead. This approach is often used in malware to hide activities from anti-virus software, modify parameters of system calls, or monitor sensitive API calls like `NtOpenProcess`.
 
-### 32-bit vs 64-bit Configuration
-Detours supports both 32-bit and 64-bit Windows systems, and the following preprocessor code can be used to determine the appropriate `.lib` file to link:
+### How Detours Achieves Hooking
+
+The following is the general procedure Detours uses for function hooking:
+- **Patch the entry point** of the target function to redirect the flow.
+- **Save original instructions** so they can be executed later (or bypassed).
+- **Inject custom behavior** by redirecting execution to the attacker’s function.
+
+Let’s dive into the practical aspects of setting up Detours for API hooking.
+
+## Setting up the Detours Library
+
+1. **Download and compile** the Detours repository from Microsoft's official [GitHub repository](https://github.com/microsoft/detours). Ensure you have both 32-bit and 64-bit binaries for compatibility across different architectures.
+2. **Include necessary headers** in your project, such as `detours.h` and link the appropriate `.lib` files depending on the target architecture.
+
+Here’s an example of how you can handle both 32-bit and 64-bit builds in your project using preprocessor directives:
 
 ```cpp
-// If compiling as 64-bit
 #ifdef _M_X64
-#pragma comment (lib, "detoursx64.lib")
-#endif // _M_X64
-
-// If compiling as 32-bit
-#ifdef _M_IX86
-#pragma comment (lib, "detoursx86.lib")
-#endif // _M_IX86
+    #pragma comment(lib, "detours64.lib")
+#else
+    #pragma comment(lib, "detours32.lib")
+#endif
 ```
 
-### Detours API Functions
-The key API functions provided by the Detours library include:
-- **`DetourTransactionBegin`**: Starts a new transaction for attaching or detaching detours.
-- **`DetourUpdateThread`**: Enlists the current thread in the transaction.
-- **`DetourAttach`**: Attaches a hook to a target function.
-- **`DetourDetach`**: Detaches a hook from a target function.
-- **`DetourTransactionCommit`**: Commits the transaction, applying or removing the hooks.
+### Key Functions in Detours
 
-These functions return a `LONG` value for error-checking, where `NO_ERROR` indicates success.
+Detours offers several essential API functions to manage hooks:
+- `DetourTransactionBegin()`: Starts a transaction to manage multiple hooks.
+- `DetourUpdateThread()`: Updates the transaction to include the current thread.
+- `DetourAttach()`: Attaches a hook to the specified function.
+- `DetourDetach()`: Detaches the hook, restoring the original function.
+- `DetourTransactionCommit()`: Commits the transaction, applying or undoing changes.
 
-### Creating a Replacement Function
-To create a replacement function, it should have the same signature as the original function. This allows you to modify the parameters and/or behavior as needed:
+## Full Example: Hooking `MessageBoxA`
+
+Below is a complete example demonstrating how to hook the `MessageBoxA` function, which can be leveraged by malware to alter system messages or deceive users:
 
 ```cpp
-INT WINAPI MyMessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
-  // Inspect or modify parameters
-  printf("Original lpText: %s\n", lpText);
-  printf("Original lpCaption: %s\n", lpCaption);
-  return MessageBoxA(hWnd, "Modified lpText", "Modified lpCaption", uType);
+#include <windows.h>
+#include <detours.h>
+#include <stdio.h>
+
+typedef int (WINAPI* MessageBoxA_t)(HWND, LPCSTR, LPCSTR, UINT);
+MessageBoxA_t OriginalMessageBoxA = MessageBoxA;
+
+int WINAPI HookedMessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
+    // Modify the message displayed
+    printf("Hooked! Original Text: %s
+", lpText);
+    lpText = "This is a malware-altered message!";
+    
+    // Call the original function
+    return OriginalMessageBoxA(hWnd, lpText, lpCaption, uType);
 }
-```
 
-### Avoiding Infinite Loops
-If you call the original function from within the hook without unhooking it first, it can result in an **infinite loop**. To prevent this, store the original function's address in a global function pointer before hooking:
-
-```cpp
-// Pointer to unhooked MessageBoxA
-typedef int (WINAPI *fnMessageBoxA)(HWND, LPCSTR, LPCSTR, UINT);
-fnMessageBoxA g_pMessageBoxA = MessageBoxA;
-
-INT WINAPI MyMessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
-  printf("Original lpText: %s\n", lpText);
-  return g_pMessageBoxA(hWnd, "Modified lpText", "Modified lpCaption", uType);
-}
-```
-
-## Installing and Removing Hooks
-To install a hook, initiate a transaction, enlist the current thread, attach the hook, and commit the transaction.
-
-### Hook Installation Example
-```cpp
 BOOL InstallHook() {
-  if (DetourTransactionBegin() != NO_ERROR) return FALSE;
-  if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return FALSE;
-  if (DetourAttach(&(PVOID&)g_pMessageBoxA, MyMessageBoxA) != NO_ERROR) return FALSE;
-  if (DetourTransactionCommit() != NO_ERROR) return FALSE;
-  return TRUE;
+    if (DetourTransactionBegin() != NO_ERROR) return FALSE;
+    if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return FALSE;
+    if (DetourAttach(&(PVOID&)OriginalMessageBoxA, HookedMessageBoxA) != NO_ERROR) return FALSE;
+    return DetourTransactionCommit() == NO_ERROR;
 }
-```
 
-### Hook Removal Example
-The process for unhooking is similar, using `DetourDetach` instead of `DetourAttach`.
-
-```cpp
-BOOL Unhook() {
-  if (DetourTransactionBegin() != NO_ERROR) return FALSE;
-  if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return FALSE;
-  if (DetourDetach(&(PVOID&)g_pMessageBoxA, MyMessageBoxA) != NO_ERROR) return FALSE;
-  if (DetourTransactionCommit() != NO_ERROR) return FALSE;
-  return TRUE;
+BOOL UninstallHook() {
+    if (DetourTransactionBegin() != NO_ERROR) return FALSE;
+    if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return FALSE;
+    if (DetourDetach(&(PVOID&)OriginalMessageBoxA, HookedMessageBoxA) != NO_ERROR) return FALSE;
+    return DetourTransactionCommit() == NO_ERROR;
 }
-```
 
-## Main Function Example
-The following main function demonstrates calling the original, hooked, and unhooked versions of `MessageBoxA`:
-
-```cpp
 int main() {
-  // Original function call
-  MessageBoxA(NULL, "Initial call", "Original", MB_OK);
+    // Original MessageBoxA (before hooking)
+    MessageBoxA(NULL, "Hello, world!", "Original", MB_OK);
 
-  // Install hook
-  if (InstallHook()) {
-    MessageBoxA(NULL, "This will be hooked", "Hooked", MB_OK);
-  }
+    // Install the hook
+    if (!InstallHook()) {
+        printf("Failed to install hook!
+");
+        return -1;
+    }
 
-  // Unhook
-  if (Unhook()) {
-    MessageBoxA(NULL, "Unhooked call", "Original", MB_OK);
-  }
+    // This will trigger the hooked MessageBoxA
+    MessageBoxA(NULL, "This should be hooked!", "Hooked", MB_OK);
 
-  return 0;
+    // Uninstall the hook
+    if (!UninstallHook()) {
+        printf("Failed to uninstall hook!
+");
+        return -1;
+    }
+
+    // Back to original MessageBoxA (after unhooking)
+    MessageBoxA(NULL, "Back to normal.", "Original", MB_OK);
+
+    return 0;
 }
 ```
 
-## Summary
-The Detours Library provides powerful tools for **API hooking** in Windows, allowing developers to replace and extend the functionality of existing functions. Transactions make managing hooks easy, and understanding the use of trampolines and avoiding infinite loops is crucial for effective usage.
+### Explanation of Code
+- We define a typedef for the original `MessageBoxA` function and store a pointer to it in `OriginalMessageBoxA`.
+- The `HookedMessageBoxA` function changes the message that is displayed when `MessageBoxA` is called.
+- The hook is installed using the `DetourAttach()` function, and once our custom function executes, it calls the original `MessageBoxA` to avoid breaking functionality.
 
-For more detailed information and examples, refer to the [[Detours Wiki|https://github.com/microsoft/Detours/wiki]].
+## Avoiding Infinite Loops
+
+A common pitfall in hooking is accidentally creating an infinite loop when the hooked function calls itself. In our example, we avoid this by calling the `OriginalMessageBoxA` instead of `MessageBoxA` within the hook function. However, an alternative method is to hook a function with similar behavior, such as `MessageBoxW`:
+
+```cpp
+int WINAPI HookedMessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
+    // Call a different API to avoid recursion
+    return MessageBoxW(hWnd, L"Altered text", L"Altered caption", uType);
+}
+```
+## Advanced Hooking Techniques
+
+To enhance the malware's stealthiness, attackers often use these advanced techniques:
+- **Dynamic API Resolution**: Instead of hardcoding function addresses, use `GetProcAddress` to dynamically resolve them at runtime. This makes the malware more portable.
+- **Multiple Function Hooks**: Use Detours transactions to hook multiple API functions simultaneously. For instance, you can hook both `VirtualAlloc` and `VirtualFree` to monitor memory allocation by security tools.
+- **Inline Patching**: Instead of using Detours’ trampoline approach, some malware may manually patch the entry point of the target function with their custom code for maximum control.
+
+### 1. Dynamic API Resolution with Detours
+
+Instead of hardcoding the address of a function like `MessageBoxA`, malware can dynamically resolve the function's address at runtime using `GetProcAddress`. This makes the malware adaptable across different Windows versions, service packs, and updates.
+
+**Example with Detours:**
+
+```cpp
+#include <windows.h>
+#include <detours.h>
+#include <stdio.h>
+
+typedef int (WINAPI* MessageBoxA_t)(HWND, LPCSTR, LPCSTR, UINT);
+MessageBoxA_t pMessageBoxA = NULL;
+
+int WINAPI HookedMessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
+    printf("Dynamically Hooked! Original Text: %s\n", lpText);
+    lpText = "This message was altered dynamically!";
+    return pMessageBoxA(hWnd, lpText, lpCaption, uType);
+}
+
+BOOL InstallHook() {
+    HMODULE hUser32 = LoadLibraryA("user32.dll");
+    pMessageBoxA = (MessageBoxA_t)GetProcAddress(hUser32, "MessageBoxA");
+    
+    if (!pMessageBoxA) {
+        printf("Failed to resolve MessageBoxA dynamically.\n");
+        return FALSE;
+    }
+
+    if (DetourTransactionBegin() != NO_ERROR) return FALSE;
+    if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return FALSE;
+    if (DetourAttach(&(PVOID&)pMessageBoxA, HookedMessageBoxA) != NO_ERROR) return FALSE;
+    return DetourTransactionCommit() == NO_ERROR;
+}
+
+BOOL UninstallHook() {
+    if (DetourTransactionBegin() != NO_ERROR) return FALSE;
+    if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return FALSE;
+    if (DetourDetach(&(PVOID&)pMessageBoxA, HookedMessageBoxA) != NO_ERROR) return FALSE;
+    return DetourTransactionCommit() == NO_ERROR;
+}
+
+int main() {
+    InstallHook();
+    MessageBoxA(NULL, "Hello, world!", "Original Message", MB_OK);
+    UninstallHook();
+    MessageBoxA(NULL, "Back to normal.", "Original Message", MB_OK);
+    return 0;
+}
+```
+* Why this is beneficial for malware development:
+
+- Portability: The malware becomes more adaptable to various Windows versions.
+- Evasion: By resolving API functions dynamically, the malware avoids signature-based detection methods that rely on hardcoded addresses.
+
+### 2. Multiple Function Hooks with Detours
+
+In a malware scenario, hooking multiple APIs at once can provide better control and monitoring of system behaviors. For example, hooking both VirtualAlloc and VirtualFree gives control over memory allocation and deallocation processes, useful for tracking or manipulating memory used by security software.
+
+```cpp
+#include <windows.h>
+#include <detours.h>
+#include <stdio.h>
+
+typedef LPVOID (WINAPI* VirtualAlloc_t)(LPVOID, SIZE_T, DWORD, DWORD);
+VirtualAlloc_t OriginalVirtualAlloc = VirtualAlloc;
+
+typedef BOOL (WINAPI* VirtualFree_t)(LPVOID, SIZE_T, DWORD);
+VirtualFree_t OriginalVirtualFree = VirtualFree;
+
+LPVOID WINAPI HookedVirtualAlloc(LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect) {
+    printf("Hooked VirtualAlloc: Allocating %llu bytes\n", dwSize);
+    return OriginalVirtualAlloc(lpAddress, dwSize, flAllocationType, flProtect);
+}
+
+BOOL WINAPI HookedVirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD dwFreeType) {
+    printf("Hooked VirtualFree: Freeing memory\n");
+    return OriginalVirtualFree(lpAddress, dwSize, dwFreeType);
+}
+
+BOOL InstallMemoryHooks() {
+    if (DetourTransactionBegin() != NO_ERROR) return FALSE;
+    if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return FALSE;
+    if (DetourAttach(&(PVOID&)OriginalVirtualAlloc, HookedVirtualAlloc) != NO_ERROR) return FALSE;
+    if (DetourAttach(&(PVOID&)OriginalVirtualFree, HookedVirtualFree) != NO_ERROR) return FALSE;
+    return DetourTransactionCommit() == NO_ERROR;
+}
+
+BOOL UninstallMemoryHooks() {
+    if (DetourTransactionBegin() != NO_ERROR) return FALSE;
+    if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return FALSE;
+    if (DetourDetach(&(PVOID&)OriginalVirtualAlloc, HookedVirtualAlloc) != NO_ERROR) return FALSE;
+    if (DetourDetach(&(PVOID&)OriginalVirtualFree, HookedVirtualFree) != NO_ERROR) return FALSE;
+    return DetourTransactionCommit() == NO_ERROR;
+}
+
+int main() {
+    InstallMemoryHooks();
+    VirtualAlloc(NULL, 4096, MEM_COMMIT, PAGE_READWRITE);
+    VirtualFree(NULL, 0, MEM_RELEASE);
+    UninstallMemoryHooks();
+    return 0;
+}
+
+```
+* Why this is beneficial for malware development:
+
+- Comprehensive Monitoring: Hooking multiple related APIs (e.g., memory-related functions) allows attackers to control key aspects of system behavior.
+- Efficiency: Using Detours transactions, malware can apply multiple hooks in one go, simplifying the process and minimizing the risk of failure.
+
+### 3. Inline Patching with Detours
+
+Although Detours typically uses trampolines, it is possible to patch function entry points directly. Inline patching gives full control over the target function’s behavior. This method is often harder to detect as it doesn't rely on additional libraries.
+
+Example with Detours for Inline Patching:
+
+```cpp
+#include <windows.h>
+#include <detours.h>
+#include <stdio.h>
+
+typedef int (WINAPI* MessageBoxA_t)(HWND, LPCSTR, LPCSTR, UINT);
+MessageBoxA_t OriginalMessageBoxA = MessageBoxA;
+
+void PatchFunction(void* targetFunction, void* newFunction) {
+    DWORD oldProtect;
+    VirtualProtect(targetFunction, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
+    
+    *(BYTE*)targetFunction = 0xE9;  // JMP opcode
+    *(DWORD*)((BYTE*)targetFunction + 1) = (DWORD)newFunction - (DWORD)targetFunction - 5;
+
+    VirtualProtect(targetFunction, 5, oldProtect, &oldProtect);
+}
+
+int WINAPI HookedMessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
+    printf("Inline patched! Original Text: %s\n", lpText);
+    return OriginalMessageBoxA(hWnd, "Inline patch altered this text", lpCaption, uType);
+}
+
+int main() {
+    PatchFunction((void*)MessageBoxA, HookedMessageBoxA);
+    MessageBoxA(NULL, "Hello, world!", "Original Message", MB_OK);
+    return 0;
+}
+
+```
+
+* Why this is beneficial for malware development:
+
+- Stealth: Inline patching doesn’t rely on external libraries, making it harder for antivirus and monitoring tools to detect.
+- Full Control: By manually patching the function’s entry point, attackers gain complete control over the function's execution without relying on Detours' built-in mechanisms.
+
+## Conclusion
+
+By leveraging API hooking via the Detours library, malware developers can gain control over critical system calls, modify program behavior, and potentially bypass security mechanisms. The ability to seamlessly redirect API functions to custom routines makes Detours a powerful tool in the malware developer's arsenal.
+
+For further details, visit the official [Detours GitHub](https://github.com/microsoft/detours) and experiment with different APIs to see the true potential of this technique in malware development.
+
