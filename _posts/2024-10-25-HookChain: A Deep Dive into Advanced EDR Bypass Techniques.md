@@ -60,6 +60,9 @@ Let’s assume the attacker wants to bypass `NtAllocateVirtualMemory` (which has
 
 One of the core strategies in HookChain is modifying the **Import Address Table (IAT)** of key DLLs like `kernel32.dll`, `kernelbase.dll`, and others. The IAT stores pointers to imported functions, and by overwriting these pointers, HookChain ensures that API calls bypass the EDR’s hooks.
 
+![image](https://github.com/user-attachments/assets/06b666c8-4d7f-4054-99d4-57e2b8b719e5)
+
+
 #### Example: IAT Hooking
 
 1. **Identifying the Target DLL**: Suppose the attacker knows that the target application uses `kernel32.dll` to make system calls such as `ReadFile` or `WriteFile`, which ultimately call `NTDLL` functions (e.g., `NtReadFile` and `NtWriteFile`).
@@ -69,6 +72,9 @@ One of the core strategies in HookChain is modifying the **Import Address Table 
 3. **Executing the Attack**: The application continues making calls to `ReadFile`, unaware that its IAT entry has been hooked. The hooked IAT entry redirects the function to HookChain’s handler, which ensures that the syscall is executed without being intercepted by the EDR.
 
 ## Technical Walkthrough of HookChain’s Execution Flow
+
+![image](https://github.com/user-attachments/assets/5e5d427c-5054-4661-96f6-c8b9fa8a267e)
+
 
 Let’s walk through a specific attack scenario:
 
