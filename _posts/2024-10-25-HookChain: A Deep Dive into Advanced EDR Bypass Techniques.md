@@ -104,7 +104,9 @@ Let’s walk through a specific attack scenario:
 
 Advanced Persistent Threat (APT) groups, like **Lazarus Group**, have been known to use techniques that bear similarities to HookChain. In a 2021 attack, Lazarus used a variant of their malware toolkit that bypassed kernel and user-mode EDR monitoring by employing direct syscalls. 
 
-HookChain takes this one step further by leveraging **dynamic syscall mapping** and **neighboring function calls** to evade detection. In environments where EDR products like CrowdStrike or SentinelOne were deployed, HookChain’s ability to sidestep NTDLL hooks has proven effective in evading detection, allowing attackers to carry out their operations undisturbed.
+HookChain takes this one step further by leveraging **dynamic syscall mapping** and **neighboring function calls** to evade detection.  
+**In environments where EDR products like CrowdStrike or SentinelOne were deployed**  
+HookChain’s ability to sidestep NTDLL hooks has proven effective in evading detection, allowing attackers to carry out their operations undisturbed.
 
 ---
 
