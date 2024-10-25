@@ -77,7 +77,8 @@ One of the core strategies in HookChain is modifying the **Import Address Table 
 
 3. **Executing the Attack**: The application continues making calls to `ReadFile`, unaware that its IAT entry has been hooked. The hooked IAT entry redirects the function to HookChain’s handler, which ensures that the syscall is executed without being intercepted by the EDR.
 
-![image](https://github.com/user-attachments/assets/8ba0cd04-d144-4482-82fe-2425b9f2b8d8)
+![image](https://github.com/user-attachments/assets/d962cda9-8922-4fc4-9989-773105694b3b)
+
 
 
 ## Technical Walkthrough of HookChain’s Execution Flow
