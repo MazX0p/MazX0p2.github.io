@@ -109,6 +109,16 @@ By Following these steps we gain shellcode injection successfully
 
 ![image](https://github.com/user-attachments/assets/797220b9-f0d3-47b6-95ad-e2b36f762b89)
 
+## Real-World Testing
+
+**Here's the results of our shellcode injector using HookChain Technique** 
+
+![image](https://github.com/user-attachments/assets/f6f1ed2d-84de-4870-870b-307d575865d6)
+
+![image](https://github.com/user-attachments/assets/2e11c558-0e75-48db-8a1a-bb20f3b20a42)
+
+![image](https://github.com/user-attachments/assets/9718f5d6-7c99-42b3-8680-52f493e442f6)
+
 
 ## Real-World Case Study: Lazarus Group and HookChain Techniques
 
@@ -135,6 +145,12 @@ As **HookChain** becomes more widely adopted by threat actors, EDR solutions wil
 Moreover, **behavioral-driven syscall analysis** could become a key defense, enabling EDRs to not just track syscalls but understand their context and flow. This would make it much harder for techniques like HookChain to evade detection without raising red flags.
 
 ---
+
+## Challenges for EDR Solutions
+
+EDR systems typically rely on hooks placed in user-mode APIs like NTDLL to monitor and block malicious activities. However, many EDRs do not monitor NTDLL comprehensively enough, leaving certain hooks vulnerable to bypass techniques like HookChain. **94% of analyzed EDR solutions did not present hooks in the subsystem layer above NTDLL**.  
+
+This leaves a significant gap that attackers can exploit.
 
 ## Conclusion: The Arms Race Continues
 
