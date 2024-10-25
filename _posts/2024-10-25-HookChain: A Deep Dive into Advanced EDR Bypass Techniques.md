@@ -42,6 +42,8 @@ For example:
 - `NtAllocateVirtualMemory` has a corresponding SSN (let's assume it’s `0x18` in this scenario).
 - Instead of calling the API directly, HookChain maps this SSN and looks up the actual kernel function address.
 
+![image](https://github.com/user-attachments/assets/e7b8fc3a-ec8f-45ba-929b-01e6ef45c3e1)
+
 ### Step 2: Using Indirect Syscalls
 
 In this stage, HookChain skips over the hooked `NTDLL` functions by using **Halo’s Gate** or other techniques that identify unhooked neighboring functions in `NTDLL`.
@@ -55,6 +57,8 @@ Let’s assume the attacker wants to bypass `NtAllocateVirtualMemory` (which has
 2. **Neighboring Function Search**: HookChain searches for an adjacent unhooked function in `NTDLL`, such as `NtQueryInformationProcess`. Once found, it calculates the relative distance from `NtAllocateVirtualMemory` to this unhooked function and uses this neighboring function’s address to indirectly perform the syscall.
 
 3. **Syscall Execution**: The attacker can now execute the system call via the unhooked neighboring function, completely bypassing the EDR.
+
+![image](https://github.com/user-attachments/assets/3e6771fd-9a8e-4174-a354-ec0d01c15ec9)
 
 ### Step 3: Modifying the IAT (Import Address Table)
 
