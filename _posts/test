@@ -55,6 +55,98 @@ The malware fragments its execution context by distributing code, data, and thre
 
 As the EDR tries to track the legitimate-looking processes, the malware **periodically kills and recreates** processes while keeping the malicious payload alive in a fragmented state across memory. This creates a rapidly changing execution environment that makes it extremely hard for EDR systems to correlate events across processes.
 
+
+
+# Technical Overview of Shadow Process Chain
+
+## 1. Process Shadowing via Handle Inheritance
+
+At its core, the **Shadow Process Chain** technique uses **process shadowing** to create decoy processes that inherit critical system resources, such as **handles to memory** and **thread objects**, from the original malicious process. These decoy processes appear legitimate to the OS and security tools.
+
+### Implementation:
+- The original malicious process uses the `CreateProcess` function with the `CREATE_SUSPENDED` flag to spawn a decoy process in a suspended state. This prevents immediate execution of the decoy.
+- The handles and resources of the malicious process, such as open file handles, memory mappings, and threads, are **inherited** by the decoy process. This is achieved by passing `bInheritHandles` as `TRUE` in the `CreateProcess` call.
+- Once the decoy is created, the malicious process can terminate, leaving the decoy process to carry on legitimate-looking operations while holding access to inherited resources.
+- A critical step here is using **process hollowing** or **PE image replacement** to swap the decoy’s memory space with a legitimate process's memory space to further reduce suspicion.
+
+### Why It Works:
+- **EDR and antivirus solutions** generally trust the inheritance chain of processes, assuming that parent-child relationships are legitimate. Since the decoy inherits resources from a legitimate process and is created in a seemingly valid context, detection engines are less likely to flag it.
+
+---
+
+## 2. Dynamic Execution Context Migration
+
+Instead of executing the entire malicious payload in one process, the technique migrates the **execution context** between decoy processes. This involves moving threads, registers, or execution pointers across multiple processes.
+
+### Implementation:
+- **Thread Migration**: The malicious process spawns threads that are injected into a decoy process. The thread’s entry point is set to execute part of the malware’s payload.
+  - The malware can use `NtCreateThreadEx` to create threads in the address space of the decoy process, effectively transferring execution to it.
+- **Shared Memory Sections**: The malicious payload is split into fragments and stored in **shared memory sections**. These sections are accessible by multiple decoy processes, allowing the malware to execute across multiple processes in a fragmented way.
+  - Memory is shared between processes using `CreateFileMapping` and `MapViewOfFile`, with both processes sharing parts of the payload without fully holding the malicious content at any given time.
+
+### Why It Works:
+- **Behavioral analysis engines** monitor for sustained abnormal activities in a single process. By fragmenting execution across multiple processes and spreading out the suspicious behaviors, no single process appears malicious for long.
+- Additionally, **EDRs struggle** with tracking cross-process execution when a process that exhibits abnormal behavior no longer exists by the time detection is triggered.
+
+---
+
+## 3. Process Ownership Handoff (Context Handover)
+
+Process ownership handoff involves **transferring the execution context** (such as threads or sections of memory) from one decoy process to another. This ensures that the EDR is continually chasing benign processes, while the actual payload is handled by a process that remains "fresh" and undetected.
+
+### Implementation:
+- **Thread Handoff**: The malware creates a thread in the original decoy process that executes part of the payload, then transfers the thread handle to another decoy process. This can be done using `NtSetInformationThread` to change the thread’s context or `NtQueueApcThread` to inject code into another process’s thread.
+- **Memory Handoff**: The malicious code migrates between processes by copying its execution context (such as instruction pointers, registers, and stack) to another process. The `ZwReadVirtualMemory` and `ZwWriteVirtualMemory` APIs can be used to modify memory spaces between processes.
+
+### Why It Works:
+- The malware leaves behind **no persistent malicious activity** in the original decoy process because control is transferred to a newly created process. Each new process starts with a clean slate, which makes detection harder for traditional static or behavioral-based EDR systems.
+
+---
+
+## 4. Thread and Memory Fragmentation
+
+To make detection even harder, the **malicious payload** is divided into small fragments and executed across multiple processes in parallel. Each process holds only a fragment of the execution context or payload, so no single process reveals the complete malicious activity.
+
+### Implementation:
+- **Memory Fragmentation**: The payload is fragmented into different memory sections, and these sections are distributed across multiple processes. The `CreateFileMapping` API can be used to map different memory regions into multiple decoy processes, ensuring that no one process contains the entire malicious code.
+- **Thread Fragmentation**: The malware splits its execution across multiple threads, each responsible for executing a small part of the payload. These threads are distributed between processes using thread injection techniques like `NtCreateThreadEx`.
+
+### Why It Works:
+- **EDR tools** that scan memory or threads for malicious activity will struggle to piece together the fragmented payload. Since no one thread or process holds enough of the payload to be flagged, the malware remains under the detection radar.
+- The use of **shared memory** between processes allows the payload to communicate across decoy processes, but EDRs typically focus on individual processes, not cross-process relationships.
+
+---
+
+## 5. Transient Process Recreation
+
+As a final evasion technique, the malware periodically **kills and recreates decoy processes**, making it even harder for EDR systems to track any specific malicious activity.
+
+### Implementation:
+- The malware uses the **Process Hollowing** technique to spawn new decoy processes periodically, replacing legitimate executables with a benign-looking memory footprint. Once execution control is handed over to the newly created process, the old process terminates to further avoid detection.
+- The malware keeps its malicious execution alive by continuously spawning and destroying decoy processes, using APIs like `CreateProcess`, `ZwTerminateProcess`, and `NtSuspendThread` to pause and shift execution between processes.
+
+### Why It Works:
+- EDRs that track **long-term behavioral patterns** will find it difficult to monitor transient processes because each new process appears legitimate. The continuous recreation and destruction of processes ensure that no suspicious process survives long enough to be analyzed.
+
+---
+
+## How Shadow Process Chain Bypasses EDRs
+
+- **Heuristic Evasion**: By dynamically switching between processes and fragmenting the payload, **Shadow Process Chain** breaks the flow of traditional heuristics-based analysis, making it nearly impossible for EDRs to track malicious execution patterns.
+- **Memory Forensics Avoidance**: Since the malware's payload is spread across multiple memory regions and processes, even deep memory analysis would struggle to reconstruct the complete execution flow.
+- **Process Tree Manipulation**: The creation and destruction of decoy processes leave behind a **clean process tree** that looks legitimate, while the actual malicious execution is hidden in transient processes.
+
+---
+
+## New in This Approach
+
+- **Real-time Execution Migration**: Unlike traditional process hollowing or thread injection techniques, the **Shadow Process Chain** dynamically migrates execution in real time, avoiding static detection.
+- **Advanced Memory Fragmentation**: This method fragments not only the payload but also memory sections and execution threads across multiple processes, making detection exponentially harder.
+
+---
+
+This highly technical breakdown provides a detailed, low-level explanation of the **Shadow Process Chain** technique and how it manipulates processes, threads, and memory to evade modern EDR systems.
+
 ## Bypassing Advanced EDR Systems
 
 The **Shadow Process Chain** technique is designed to bypass **many modern EDR detection techniques**, including:
