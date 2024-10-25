@@ -166,9 +166,9 @@ In the end, cybersecurity is a game of cat-and-mouse, and as defenders adapt to 
 
 ## References
 
-[Research on the specified topic](https://arxiv.org/abs/2404.16856): I've expanded upon this foundational work by adding further implementations and advancements to enhance the approach outlined in the research.
+[Helvio Carvalho Junior. 2024. HookChain](https://arxiv.org/abs/2404.16856): I've expanded upon this foundational work by adding further implementations and advancements to enhance the approach outlined in the research.
 
-> **Note**: This work builds on the foundational concepts outlined in the research by [Research on the specified topic](https://arxiv.org/abs/2404.16856) while introducing several advancements and additional implementations to enhance the original approach. These improvements include:
+> **Note**: This work builds on the foundational concepts outlined in the research by [Helvio Carvalho Junior. 2024. HookChain](https://arxiv.org/abs/2404.16856) while introducing several advancements and additional implementations to enhance the original approach. These improvements include:
 > 
 > - **Enhanced Hook Evasion Techniques**: Expanding beyond Import Address Table (IAT) manipulation and indirect syscalls, we explore further evasion tactics that address kernel-mode inspection, a potential blind spot for some EDR solutions.
 > - **Dynamic Resolution of Hooked Functions with Alternative Methods**: While leveraging Halo’s Gate, we also introduce additional SSN (System Service Number) resolution methods, like custom hashing and Heaven’s Gate, to further reduce detection.
