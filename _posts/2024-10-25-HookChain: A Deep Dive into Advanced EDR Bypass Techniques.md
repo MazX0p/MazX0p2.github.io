@@ -42,7 +42,8 @@ For example:
 - `NtAllocateVirtualMemory` has a corresponding SSN (let's assume it’s `0x18` in this scenario).
 - Instead of calling the API directly, HookChain maps this SSN and looks up the actual kernel function address.
 
-![image](https://github.com/user-attachments/assets/e7b8fc3a-ec8f-45ba-929b-01e6ef45c3e1)
+![image](https://github.com/user-attachments/assets/be5461b5-2529-4682-9fa3-ca73354ed923)
+
 
 ### Step 2: Using Indirect Syscalls
 
