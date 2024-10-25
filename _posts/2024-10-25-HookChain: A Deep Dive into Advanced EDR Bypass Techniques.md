@@ -120,6 +120,9 @@ By Following these steps we gain shellcode injection successfully
 ![image](https://github.com/user-attachments/assets/9718f5d6-7c99-42b3-8680-52f493e442f6)
 
 
+
+
+---
 ## Real-World Case Study: Lazarus Group and HookChain Techniques
 
 Advanced Persistent Threat (APT) groups, like **Lazarus Group**, have been known to use techniques that bear similarities to HookChain. In a 2021 attack, Lazarus used a variant of their malware toolkit that bypassed kernel and user-mode EDR monitoring by employing direct syscalls. 
