@@ -58,7 +58,8 @@ Let’s assume the attacker wants to bypass `NtAllocateVirtualMemory` (which has
 
 3. **Syscall Execution**: The attacker can now execute the system call via the unhooked neighboring function, completely bypassing the EDR.
 
-![image](https://github.com/user-attachments/assets/3e6771fd-9a8e-4174-a354-ec0d01c15ec9)
+![image](https://github.com/user-attachments/assets/a885671c-891d-46d5-930a-1532ae124e3d)
+
 
 ### Step 3: Modifying the IAT (Import Address Table)
 
