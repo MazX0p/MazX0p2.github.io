@@ -155,9 +155,28 @@ EDR systems typically rely on hooks placed in user-mode APIs like NTDLL to monit
 
 This leaves a significant gap that attackers can exploit.
 
+![image](https://github.com/user-attachments/assets/9d14495c-93c4-44f4-a8cb-d8637e4b216f)
+from Helvio Carvalho Junior paper
+
 ## Conclusion: The Arms Race Continues
 
 HookChain exemplifies the next evolution in **EDR evasion**, demonstrating how attackers continue to innovate new techniques to bypass even the most sophisticated defenses. As organizations become more reliant on advanced security solutions, the need to stay ahead of these emerging techniques has never been greater. Defenders must combine **kernel-level monitoring**, **behavioral analysis**, and continuous threat intelligence to stay ahead in this ever-changing battlefield.
 
 In the end, cybersecurity is a game of cat-and-mouse, and as defenders adapt to techniques like HookChain, attackers will no doubt devise even more creative methods to achieve their goals.
+
+## References
+
+[Research on the specified topic](https://arxiv.org/abs/2404.16856): I've expanded upon this foundational work by adding further implementations and advancements to enhance the approach outlined in the research.
+
+> **Note**: This work builds on the foundational concepts outlined in the research by [Research on the specified topic](https://arxiv.org/abs/2404.16856) while introducing several advancements and additional implementations to enhance the original approach. These improvements include:
+> 
+> - **Enhanced Hook Evasion Techniques**: Expanding beyond Import Address Table (IAT) manipulation and indirect syscalls, we explore further evasion tactics that address kernel-mode inspection, a potential blind spot for some EDR solutions.
+> - **Dynamic Resolution of Hooked Functions with Alternative Methods**: While leveraging Halo’s Gate, we also introduce additional SSN (System Service Number) resolution methods, like custom hashing and Heaven’s Gate, to further reduce detection.
+> - **Advanced DLL Loading Mechanisms**: Introducing staggered or randomized loading techniques to avoid behavior-based detection, enhancing the evasion capabilities by timing and variation.
+> - **API-Level Obfuscation Enhancements**: Expanding upon indirect syscalls, this work includes multi-layered obfuscation, such as parameter encryption, providing additional resilience against function call monitoring.
+> - **Real-Time Hook Verification and Restoration**: A mechanism is included to periodically verify and restore unhooked addresses in real time, making the solution adaptable to runtime EDR monitoring.
+> - **Extended Injection Techniques**: Beyond IAT hooking, this work explores methods like process hollowing, DLL hollowing, and Reflective DLL Injection, extending the original research to encompass a broader range of evasion techniques.
+
+> These extensions demonstrate a commitment to pushing past the limitations of the initial approach, making the technique even more robust and resilient against evolving endpoint detection strategies.
+
 
