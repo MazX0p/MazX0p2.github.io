@@ -30,8 +30,6 @@ This flow is disrupted by **HookChain**, which manipulates the call process.
 
 In HookChain, the attacker does not call `NtAllocateVirtualMemory` directly as monitored by the EDR. Instead, they bypass the hooked API using **indirect system calls** and **dynamic SSN mapping** to evade detection.
 
-![image](https://github.com/user-attachments/assets/1161a228-fee5-43ed-82eb-07faf59a1a62)
-
 
 ### Step 1: SSN (System Service Number) Mapping
 
@@ -65,8 +63,6 @@ Let’s assume the attacker wants to bypass `NtAllocateVirtualMemory` (which has
 ### Step 3: Modifying the IAT (Import Address Table)
 
 One of the core strategies in HookChain is modifying the **Import Address Table (IAT)** of key DLLs like `kernel32.dll`, `kernelbase.dll`, and others. The IAT stores pointers to imported functions, and by overwriting these pointers, HookChain ensures that API calls bypass the EDR’s hooks.
-
-![image](https://github.com/user-attachments/assets/06b666c8-4d7f-4054-99d4-57e2b8b719e5)
 
 
 #### Example: IAT Hooking
