@@ -105,6 +105,10 @@ Let’s walk through a specific attack scenario:
    - A function call might appear as if it went from `kernel32.dll` to `ntdll.dll` as usual.
    - However, in reality, HookChain intercepted the call, bypassed the `NTDLL` hook, and executed the syscall via a neighboring unhooked function.
 
+By Following these steps we gain shellcode injection successfully  
+
+![image](https://github.com/user-attachments/assets/797220b9-f0d3-47b6-95ad-e2b36f762b89)
+
 
 ## Real-World Case Study: Lazarus Group and HookChain Techniques
 
