@@ -155,8 +155,9 @@ EDR systems typically rely on hooks placed in user-mode APIs like NTDLL to monit
 
 This leaves a significant gap that attackers can exploit.
 
-![image](https://github.com/user-attachments/assets/9d14495c-93c4-44f4-a8cb-d8637e4b216f)
-from Helvio Carvalho Junior paper
+![EDRs](https://github.com/user-attachments/assets/9d14495c-93c4-44f4-a8cb-d8637e4b216f)  
+
+**note**:from Helvio Carvalho Junior paper
 
 ## Conclusion: The Arms Race Continues
 
