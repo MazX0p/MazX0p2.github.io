@@ -618,6 +618,24 @@ The Win32u NOP Gap Chain means the "win32u.dll whitelisted" rule is weaponized *
 
 ---
 
+## Real-World Results
+
+The LACUNA Chain injector was tested against enterprise EDR solutions in a controlled lab environment. Both targets were running current signature and behavioral engine versions at time of testing.
+
+**Bitdefender GravityZone** — full bypass, shellcode executed without detection:
+
+<img width="1969" height="660" alt="image" src="https://github.com/user-attachments/assets/b63cd30d-5a26-41bc-b943-a96c84ba949b" />
+
+
+**Kaspersky Endpoint Security** — full bypass, shellcode executed without detection:
+
+<img width="2084" height="843" alt="image" src="https://github.com/user-attachments/assets/89d6dda1-25f7-4f98-9dd4-75fc678c7980" />
+
+
+The proof-of-concept implementation is available at [github.com/MazX0p/LACUNA-Chain](https://github.com/MazX0p/LACUNA-Chain).
+
+---
+
 ## Conclusion: The Arms Race Moved Deeper
 
 Part I showed that userland hook bypass defeats a huge fraction of EDR deployments. That gap was real in 2024.
