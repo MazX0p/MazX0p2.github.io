@@ -618,11 +618,27 @@ The Win32u NOP Gap Chain means the "win32u.dll whitelisted" rule is weaponized *
 
 ---
 
+## Challenges for EDR Solutions
+
+Modern EDRs defend in layers: kernel callbacks (`ObRegisterCallbacks`) intercept handle acquisition, heuristic engines flag dangerous memory permissions, behavioral correlators match syscall sequences, and execution-origin rules kill code running from anonymous pages. Against Bitdefender alone, we triggered five distinct detection layers before achieving full bypass — handle access rights, RWX page allocation, anonymous-memory execution, the `AllocVM + WriteVM + ProtectVM + QueueAPC` sequence correlator, and payload behavior in the target process.
+
+**Not one of those five detections was the call stack.**
+
+The LACUNA Chain — the ghost-frame spoofing, the BYOUD-MF teleport, the win32u NOP gap, the ETW-Ti APC window — stayed clean across every test, against every product. The call-stack layer was never the reason we got caught. Every detection came from a different surface: how the handle was opened, how memory was allocated, what syscall sequence preceded the APC, or what the shellcode did after landing.
+
+HookChain exposed that **94% of EDR solutions do not hook the subsystem layer above NTDLL**. LACUNA Chain exploits a deeper blind spot: `.pdata` lacunae — executable regions inside signed DLLs with no exception-handling metadata. These ghost regions are invisible to `RtlLookupFunctionEntry`, absent from any hook table, and structurally indistinguishable from legitimate leaf functions during stack unwinding.
+
+<img width="1090" height="586" alt="lacuna_edr_results" src="https://github.com/user-attachments/assets/4c014e1d-c2b2-48d5-8032-2671fb7242f8" />
+
+This gap cannot be closed by adding more hooks. Every layer in the chain — `wow64.dll`, `kernelbase.dll`, `win32u.dll`, and `.pdata` gap regions — sits in address ranges that are structurally invisible to current call-stack inspection. Closing it requires enumerating `.pdata` gaps at runtime and flagging any call-trace frame that lands in a gap. No production EDR does this today.
+
+---
+
 ## Real-World Results
 
 The LACUNA Chain injector was tested against enterprise EDR solutions in a controlled lab environment. Both targets were running current signature and behavioral engine versions at time of testing.
 
-**Bitdefender GravityZone** — full bypass, shellcode executed without detection:
+**Bitdefender** — full bypass, shellcode executed without detection:
 
 <img width="1969" height="660" alt="image" src="https://github.com/user-attachments/assets/b63cd30d-5a26-41bc-b943-a96c84ba949b" />
 
