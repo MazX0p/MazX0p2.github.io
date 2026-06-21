@@ -638,6 +638,10 @@ This gap cannot be closed by adding more hooks. Every layer in the chain — `wo
 
 The LACUNA Chain injector was tested against enterprise EDR solutions in a controlled lab environment. Both targets were running current signature and behavioral engine versions at time of testing.
 
+**Elastic EDR** — full bypass, shellcode executed without detection:
+
+<img width="2892" height="991" alt="image" src="https://github.com/user-attachments/assets/9eccbe12-bfb7-4f30-b8a0-51abd21f7534" />
+
 **Bitdefender** — full bypass, shellcode executed without detection:
 
 <img width="1969" height="660" alt="image" src="https://github.com/user-attachments/assets/b63cd30d-5a26-41bc-b943-a96c84ba949b" />
