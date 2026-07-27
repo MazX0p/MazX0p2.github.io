@@ -23,7 +23,7 @@ I reported it. Microsoft closed it as **"Not a Vulnerability"** and told me the 
 | **Defeats** | KB5014754 SID stamping, `StrongCertificateBindingEnforcement = 2` |
 | **Does *not* require** | `EDITF_ATTRIBUTESUBJECTALTNAME2` (this is not ESC6), enrollment-agent rights, manager approval |
 | **Vendor status** | MSRC case — closed "Not a Vulnerability," no fix |
-| **Tested on** | <!-- FILL: exact OS/CA builds you validated. If you only tested 2019, say so plainly — "2022/2025 untested" is a stronger position than silence, because silence reads as an overclaim. --> |
+| **Tested on** | Windows Server 2019, OS build `10.0.17763.8755`. CA: `certsrv.exe 10.0.17763.8385`, policy module `certpdef.dll 10.0.17763.6893`. DC: `10.0.17763.8511`, `StrongCertificateBindingEnforcement = 2`. Server 2022 / 2025 **untested** — the code paths look the same in the binaries, but I have not run it there, so I'm not claiming it. |
 
 I'm going to build up the background properly first. If you already live in AD CS internals, skip to [The primitive](#the-primitive-cmc-and-id-cmc-addextensions).
 
@@ -74,7 +74,7 @@ It's a different, less careful code path. Here's the code.
      - "FUN_140027e1c in my db, at +0x30a30 in the newer image" mixes two images in one sentence.
      Pick ONE canonical image (I'd use the live 10.0.17763.7131 you pulled off the CA), give every address from that image, and if you want to include the second build put it in a small table at the end of the section. Fill the bracketed placeholders below. -->
 
-Everything below is from `certsrv.exe` pulled straight off the live CA: **Server 2019, `certsrv.exe 10.0.17763.7131`, image base `0x140000000`** (confirmed from the PE header). Analysis in Ghidra. Where I cite an address it is from that image unless I say otherwise.
+Everything below is from `certsrv.exe` pulled straight off the live CA: **Server 2019, `certsrv.exe 10.0.17763.8385`, image base `0x140000000`** (confirmed from the PE header). Analysis in Ghidra. Every address in this section is from that one image.
 
 `certsrv.exe` funnels request extensions through one dispatcher — `[FILL: FUN_xxxxxxxx]`. The first thing it does is mask the caller-supplied flag and branch on it:
 
@@ -233,17 +233,16 @@ PS C:\> Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\Kdc' `
 StrongCertificateBindingEnforcement : 2
 ```
 
-<!-- FILL: paste your real console output here, whatever form you captured it in. The reg value is the single most attackable claim in the post — show it rather than describe it. -->
-
-**The CA carries the KB5014754-era policy module.** This is the version that matters, because `certpdef.dll` is what does the stamping:
+**The CA carries a working KB5014754 policy module.** This is the version that matters, because `certpdef.dll` — not `certca.dll` — is what stamps the SID ([part 2](#reverse-engineering-part-2-where-the-sid-stamp-lives-and-where-it-doesnt) walks the disassembly):
 
 ```
-certsrv.exe   10.0.17763.7131
-certpdef.dll  <!-- FILL: certpdef.dll FileVersion / FilePrivatePart from the live CA -->
-certca.dll    10.0.17763.1911
+certpdef.dll  10.0.17763.6893   <- the module that does the SID stamping
+certsrv.exe   10.0.17763.8385
 ```
 
-<!-- FILL — IMPORTANT: your original draft evidenced "patched" using certca.dll's version, but the RE section proves certca.dll isn't the stamping component. That gap is the cleanest way for anyone to dismiss this post as "his CA wasn't patched." Get certpdef.dll's version off the live host and lead with it. Keep the certca.dll note about the FileVersion string resource reading 17763.1 while FilePrivatePart is 1911 — it's a good detail — but it belongs as a footnote, not as the patch evidence. -->
+And I don't ask you to trust a version string for it. The stamp **demonstrably runs** on this CA: point the same injection at a template that is *not* enrollee-supplies-subject (`Machine`) and the CA overwrites my SID with the requester's real one ([see below](#the-part-where-i-have-to-be-fair)). The defence is present and it works — CMC-ADDEXT bypasses it specifically on the enrollee-supplies-subject path. That is a much harder thing to wave away than a version number, and it's the evidence that actually matters.
+
+> A note, because I got this wrong in my first draft: don't evidence "patched" with `certca.dll`'s file version. `certca.dll` only parses names; it never writes the SID extension (part 2). Its version tells you nothing about whether the defence under test is present. Windows also stamps these component DLLs oddly — the `FileVersion` string resource can read `10.0.17763.1` while the real serviced build is in the numeric fields — so quote the numeric version, and better yet prove the behaviour.
 
 **This is not ESC6.** `EDITF_ATTRIBUTESUBJECTALTNAME2` (`0x40000`) is not set — `EditFlags` is `0x11014e`. This is not the `san:` request-attribute trick. The SAN goes in through the CMC control, at the `certsrv.exe` layer, before any of that EditFlags logic runs.
 
@@ -364,9 +363,7 @@ krbtgt:502:aad3b435b51404eeaad3b435b51404ee:<redacted>:::
 krbtgt:aes256-cts-hmac-sha1-96:<redacted>
 ```
 
-krbtgt hash out of the DC. Golden-ticket-the-forest territory. `cmctest`, RID 1135, member of nothing, now owns the domain.
-
-<!-- FILL: your call on whether to keep the real hashes. It's a throwaway lab so there's no operational risk, but redacting them costs you nothing evidentially and stops the post tripping every DLP and threat-intel feed that scrapes it — which matters for reach when your goal is defenders reading this. -->
+krbtgt hash out of the DC. Golden-ticket-the-forest territory. `cmctest`, RID 1135, member of nothing, now owns the domain. (Hashes redacted — it's a throwaway lab, but there's no reason to feed every threat-intel scraper a real krbtgt.)
 
 ```mermaid
 flowchart TD
@@ -421,7 +418,7 @@ The argument only works if you can check it, so here's the short version. Build 
 
 If the extension isn't there, you've reproduced the finding, and you can stop — A is sufficient to show the defence didn't run. B and C are just aim.
 
-Tooling and the full CMC builder are on my GitHub. Go check my work.
+The full CMC builder (`cmc_addext.py`), the independent cert parser, the three-experiment runner, and the reverse-engineering notes are on GitHub: **[github.com/MazX0p/cmc-addext](https://github.com/MazX0p/cmc-addext)**. Go check my work.
 
 ## Detection
 
