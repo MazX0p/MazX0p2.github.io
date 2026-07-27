@@ -69,28 +69,23 @@ It's a different, less careful code path. Here's the code.
 
 ## Reverse engineering, part 1: the certsrv.exe allowlist gap
 
-<!-- FILL — IMPORTANT: this section currently mixes addresses from two different certsrv.exe images and the reader can't tell which is which. Specifically:
-     - the decompiler snippet is labelled FUN_1400227e8, but the instruction listing runs 0x14002b0dd–0x14002b287, ~35KB past that entry point. Those cannot be the same function.
-     - "FUN_140027e1c in my db, at +0x30a30 in the newer image" mixes two images in one sentence.
-     Pick ONE canonical image (I'd use the live 10.0.17763.7131 you pulled off the CA), give every address from that image, and if you want to include the second build put it in a small table at the end of the section. Fill the bracketed placeholders below. -->
-
 Everything below is from `certsrv.exe` pulled straight off the live CA: **Server 2019, `certsrv.exe 10.0.17763.8385`, image base `0x140000000`** (confirmed from the PE header). Analysis in Ghidra. Every address in this section is from that one image.
 
-`certsrv.exe` funnels request extensions through one dispatcher — `[FILL: FUN_xxxxxxxx]`. The first thing it does is mask the caller-supplied flag and branch on it:
+`certsrv.exe` funnels request extensions through one dispatcher — `FUN_14002b090`. The first thing it does is mask the caller-supplied flag and branch on it:
 
 ```c
-// request-extension dispatcher
+// FUN_14002b090 — request-extension dispatcher
 uVar15 = param_2 & 0xf0000;          // keep only bits 16..19 of the flag
 if (uVar15 == 0x50000) {
     // Allowlist A — the CA-renewal extension set
     // AIA (1.3.6.1.5.5.7.1.1), CDP (2.5.29.31), AKI (2.5.29.35),
     // SKI (2.5.29.14), CAVersion (1.3.6.1.4.1.311.21.1)
 } else {
-    if (uVar15 != 0x90000) goto LAB_[FILL];      // <-- the hole
+    if (uVar15 != 0x90000) goto LAB_14002b198;   // <-- the hole
     // Allowlist B — SKI (2.5.29.14) only
 }
 // extension is on an allowlist, process it against the list
-LAB_[FILL]:
+LAB_14002b198:
 // extension NOT on any allowlist — but we still fall through here,
 // and downstream this reaches SetCertificateExtension anyway
 ```
@@ -110,11 +105,11 @@ Same thing at the instruction level, if you prefer it raw:
 
 So the dispatcher only *knows* two allowlist worlds: `0x50000` and `0x90000`. Any other value in those bits and it never consults a list at all. It just carries the extension down to `SetCertificateExtension`.
 
-Now find the caller for `id-cmc-addExtensions`. The CMC control handler — `[FILL: FUN_xxxxxxxx, and state the image]` — processes the addExtensions attribute and calls the dispatcher with a hardcoded flag:
+Now find the caller for `id-cmc-addExtensions`. The CMC control handler — `FUN_140030a30`, which `strcmp`s the incoming control OID against `"1.3.6.1.5.5.7.7.8"` — processes the addExtensions attribute and calls the dispatcher with a hardcoded flag:
 
 ```c
-// id-cmc-addExtensions handler
-dispatcher(param_1, 0x80002, extensions, count);
+// FUN_140030a30 — id-cmc-addExtensions handler, on OID match:
+FUN_14002b090(param_1, 0x80002, extensions, count);   // call at 0x140030b43
 ```
 
 Do the arithmetic the dispatcher does:
@@ -131,7 +126,7 @@ Do the arithmetic the dispatcher does:
 
 ### Who is allowed to sign this
 
-You might expect that submitting a CMC control needs some privileged registration-authority cert. It doesn't. The signer verification is in `[FILL: FUN_xxxxxxxx]`:
+You might expect that submitting a CMC control needs some privileged registration-authority cert. It doesn't. The CMC message is decoded and its signer verified in `FUN_14003151c` (`CryptMsgOpenToDecode` → `CryptMsgGetAndVerifySigner`), before `FUN_140030a30` ever runs:
 
 ```c
 CryptMsgGetAndVerifySigner(hMsg, 0, NULL, 4 /* CMSG_SIGNER_ONLY_FLAG */, &pSigner, NULL);
